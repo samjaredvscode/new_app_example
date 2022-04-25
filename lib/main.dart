@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_app/bloc/counter_bloc.dart';
 
 void main() => runApp(const MyApp());
 
@@ -10,44 +12,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Counter',
-      home: const BodyApp(),
+      home: BlocProvider(
+        create: (context) => CounterBloc(),
+        child: const BodyApp(),
+      ),
       theme: ThemeData.dark(),
     );
   }
 }
 
-class BodyApp extends StatefulWidget {
+class BodyApp extends StatelessWidget {
   const BodyApp({
     Key? key,
   }) : super(key: key);
-
-  @override
-  State<BodyApp> createState() => _BodyAppState();
-}
-
-class _BodyAppState extends State<BodyApp> {
-  int counter = 0;
-
-  void _increment() {
-    setState(() {
-      counter++;
-    });
-  }
-
-  void _decrement() {
-    setState(() {
-      if (counter == 0) {
-        return;
-      }
-      counter--;
-    });
-  }
-
-  void _byZero() {
-    setState(() {
-      counter = 0;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,36 +44,13 @@ class _BodyAppState extends State<BodyApp> {
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Conteo de los números de clicks:'),
-                  TextCounter(counter: counter),
+                children: const [
+                  Text('Conteo de los números de clicks:'),
+                  TextCounter(),
                 ],
               ),
             ),
-            Row(
-              children: [
-                FloatingActionButton(
-                  child: const Icon(Icons.exposure_zero),
-                  onPressed: () {
-                    _byZero();
-                  },
-                ),
-                Expanded(child: Container(height: 0)),
-                FloatingActionButton(
-                  child: const Icon(Icons.remove),
-                  onPressed: () {
-                    _decrement();
-                  },
-                ),
-                const SizedBox(width: 10),
-                FloatingActionButton(
-                  child: const Icon(Icons.add),
-                  onPressed: () {
-                    _increment();
-                  },
-                ),
-              ],
-            ),
+            const ButtonsForCounter(),
           ],
         ),
       ),
@@ -104,20 +58,63 @@ class _BodyAppState extends State<BodyApp> {
   }
 }
 
+class ButtonsForCounter extends StatelessWidget {
+  const ButtonsForCounter({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint('statement');
+    return BlocBuilder<CounterBloc, int>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            FloatingActionButton(
+              child: const Icon(Icons.exposure_zero),
+              onPressed: () {
+                debugPrint('$state');
+                context.read<CounterBloc>().add(ByZeroCounterEvent());
+              },
+            ),
+            Expanded(child: Container(height: 0)),
+            FloatingActionButton(
+              child: const Icon(Icons.remove),
+              onPressed: state == 0
+                  ? null
+                  : () {
+                      context.read<CounterBloc>().add(DrecrementCounterEvent());
+                    },
+            ),
+            const SizedBox(width: 10),
+            FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                context.read<CounterBloc>().add(IncrementCounterEvent());
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class TextCounter extends StatelessWidget {
   const TextCounter({
     Key? key,
-    required this.counter,
   }) : super(key: key);
-
-  final int counter;
 
   @override
   Widget build(BuildContext context) {
     debugPrint('build-text');
-    return Text(
-      '$counter',
-      style: const TextStyle(fontSize: 20),
+    return BlocBuilder<CounterBloc, int>(
+      builder: (context, count) {
+        return Text(
+          '$count',
+          style: const TextStyle(fontSize: 20),
+        );
+      },
     );
   }
 }
