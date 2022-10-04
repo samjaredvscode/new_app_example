@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Counter',
       home: const BodyApp(),
-      theme: ThemeData.dark(),
+      theme: ThemeData.light(),
     );
   }
 }
