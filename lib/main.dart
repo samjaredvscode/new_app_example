@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Counter',
+      title: 'Contador',
       home: const BodyApp(),
       theme: ThemeData.dark(),
     );
